@@ -44,10 +44,18 @@ model Negocio {
   @@index([barrio])
 }
 
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+
+  productos Producto[]
+}
+
 model Producto {
   id          Int             @id @default(autoincrement())
   nombre      String
-  categoria   String
+  categoriaId Int
+  categoria   Categoria       @relation(fields: [categoriaId], references: [id])
   fotoUrl     String
   cantidad    Int             @default(1)
   estado      EstadoProducto  @default(disponible)
@@ -57,4 +65,5 @@ model Producto {
   negocio     Negocio         @relation(fields: [negocioId], references: [id])
 
   @@index([negocioId])
+  @@index([categoriaId])
 }
