@@ -1,0 +1,60 @@
+// Modelo de datos de VitrinaApp
+// Cubre: Épica 1 (Catálogo), Épica 2 (Visibilidad), Épica 3 (Onboarding)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoProducto {
+  disponible
+  agotado
+}
+
+model Usuario {
+  id                    Int      @id @default(autoincrement())
+  nombre                String
+  email                 String   @unique
+  passwordHash          String
+  onboardingCompletado  Boolean  @default(false)
+  creadoEn              DateTime @default(now())
+
+  negocio               Negocio?
+}
+
+model Negocio {
+  id            Int        @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  barrio        String
+  latitud       Float?
+  longitud      Float?
+  creadoEn      DateTime   @default(now())
+
+  usuarioId     Int        @unique
+  usuario       Usuario    @relation(fields: [usuarioId], references: [id])
+
+  productos     Producto[]
+
+  @@index([nombre])
+  @@index([barrio])
+}
+
+model Producto {
+  id          Int             @id @default(autoincrement())
+  nombre      String
+  categoria   String
+  fotoUrl     String
+  cantidad    Int             @default(1)
+  estado      EstadoProducto  @default(disponible)
+  creadoEn    DateTime        @default(now())
+
+  negocioId   Int
+  negocio     Negocio         @relation(fields: [negocioId], references: [id])
+
+  @@index([negocioId])
+}
