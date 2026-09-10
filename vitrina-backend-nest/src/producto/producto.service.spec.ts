@@ -7,12 +7,14 @@ describe('ProductoService', () => {
   let service: ProductoService;
   let prisma: {
     negocio: { findUnique: jest.Mock };
+    categoria: { findUnique: jest.Mock };
     producto: { create: jest.Mock; findMany: jest.Mock; findUnique: jest.Mock; update: jest.Mock };
   };
 
   beforeEach(async () => {
     prisma = {
       negocio: { findUnique: jest.fn() },
+      categoria: { findUnique: jest.fn() },
       producto: {
         create: jest.fn(),
         findMany: jest.fn(),
@@ -29,14 +31,15 @@ describe('ProductoService', () => {
   });
 
   describe('HU-01: crear producto', () => {
-    it('crea el producto con estado disponible si el negocio existe', async () => {
+    it('crea el producto con estado disponible si el negocio y la categoria existen', async () => {
       prisma.negocio.findUnique.mockResolvedValue({ id: 1 });
+      prisma.categoria.findUnique.mockResolvedValue({ id: 1 });
       prisma.producto.create.mockResolvedValue({ id: 10, estado: 'disponible' });
 
-      const resultado = await service.crear({
-        fotoUrl: 'http://img/arroz.jpg',
-        negocioId: 1,
-      } as any);
+      const resultado = await service.crear(
+        { negocioId: 1, categoriaId: 1 } as any,
+        'http://img/arroz.jpg',
+      );
 
       expect(resultado.estado).toBe('disponible');
       expect(prisma.producto.create).toHaveBeenCalled();
@@ -46,7 +49,16 @@ describe('ProductoService', () => {
       prisma.negocio.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.crear({ fotoUrl: 'http://img/x.jpg', negocioId: 999 } as any),
+        service.crear({ negocioId: 999, categoriaId: 1 } as any, 'http://img/x.jpg'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('lanza NotFoundException si la categoria no existe', async () => {
+      prisma.negocio.findUnique.mockResolvedValue({ id: 1 });
+      prisma.categoria.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.crear({ negocioId: 1, categoriaId: 999 } as any, 'http://img/x.jpg'),
       ).rejects.toThrow(NotFoundException);
     });
   });
