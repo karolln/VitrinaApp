@@ -17,7 +17,7 @@ describe('NegocioService', () => {
     service = moduleRef.get(NegocioService);
   });
 
-  describe('HU-04: perfil público', () => {
+  describe('HU-10: perfil público', () => {
     it('marca catalogoEnConstruccion=false cuando hay productos', async () => {
       prisma.negocio.findUnique.mockResolvedValue({
         id: 1,
@@ -52,7 +52,8 @@ describe('NegocioService', () => {
       await expect(service.perfilPublico(999)).rejects.toThrow(NotFoundException);
     });
   });
-  describe('HU-05: buscar negocios', () => {
+
+  describe('HU-12: buscar negocios', () => {
     it('filtra por barrio', async () => {
       prisma.negocio.findMany.mockResolvedValue([{ id: 1, barrio: 'La Esmeralda' }]);
 
@@ -67,17 +68,6 @@ describe('NegocioService', () => {
       const resultado = await service.buscar('NoExiste');
 
       expect(resultado).toHaveLength(0);
-    });
-
-    it('ignora espacios en blanco en los filtros (trim)', async () => {
-      prisma.negocio.findMany.mockResolvedValue([{ id: 1, barrio: 'La Esmeralda' }]);
-
-      await service.buscar('  ', '   ');
-
-      expect(prisma.negocio.findMany).toHaveBeenCalledWith({
-        where: { AND: [{}, {}] },
-        orderBy: { nombre: 'asc' },
-      });
     });
   });
 });

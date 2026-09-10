@@ -1,17 +1,14 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express'; // <-- NUEVO
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { join } from 'path'; 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule); 
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' }); 
 
   const config = new DocumentBuilder()
     .setTitle('VitrinaApp API')

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 
@@ -7,20 +7,17 @@ export class ProductoService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * HU-01 — Agregar producto por foto
+   * HU-05 — Agregar producto por foto
    */
-  async crear(dto: CrearProductoDto, fotoUrl: string) {
+  async crear(dto: CrearProductoDto) {
     const negocio = await this.prisma.negocio.findUnique({ where: { id: dto.negocioId } });
     if (!negocio) throw new NotFoundException('El negocio indicado no existe');
-
-    const categoria = await this.prisma.categoria.findUnique({ where: { id: dto.categoriaId } });
-    if (!categoria) throw new NotFoundException('La categoría indicada no existe');
 
     return this.prisma.producto.create({
       data: {
         nombre: dto.nombre || 'Producto sin nombre',
-        categoriaId: dto.categoriaId,
-        fotoUrl,
+        categoria: dto.categoria || 'Sin categoría',
+        fotoUrl: dto.fotoUrl,
         cantidad: dto.cantidad ?? 1,
         estado: 'disponible',
         negocioId: dto.negocioId,
@@ -29,18 +26,17 @@ export class ProductoService {
   }
 
   /**
-   * HU-02 — Ver listado de productos
+   * HU-09 — Ver listado de productos
    */
   async listarPorNegocio(negocioId: number) {
     return this.prisma.producto.findMany({
       where: { negocioId },
       orderBy: { creadoEn: 'desc' },
-      include: { categoria: true },
     });
   }
 
   /**
-   * HU-03 — Marcar producto como agotado (toggle en un solo toque)
+   * HU-08 — Marcar producto como agotado (toggle en un solo toque)
    */
   async cambiarEstado(id: number) {
     const producto = await this.prisma.producto.findUnique({ where: { id } });

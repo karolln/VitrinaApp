@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, IsUrl, Min } from 'class-validator';
 
 export class CrearProductoDto {
   @ApiPropertyOptional({ example: 'Arroz Diana 500g' })
@@ -8,20 +7,22 @@ export class CrearProductoDto {
   @IsString()
   nombre?: string;
 
-  @ApiProperty({ example: 1, description: 'Id de la categoría del producto' })
-  @Type(() => Number)
-  @IsInt()
-  categoriaId: number;
+  @ApiPropertyOptional({ example: 'Abarrotes' })
+  @IsOptional()
+  @IsString()
+  categoria?: string;
+
+  @ApiProperty({ example: 'https://storage.vitrina.app/fotos/arroz.jpg' })
+  @IsString()
+  fotoUrl: string;
 
   @ApiPropertyOptional({ example: 1 })
   @IsOptional()
-  @Type(() => Number)
   @IsInt()
   @Min(0)
   cantidad?: number;
 
   @ApiProperty({ example: 1, description: 'Id del negocio dueño del producto' })
-  @Type(() => Number)
   @IsInt()
   negocioId: number;
 }
