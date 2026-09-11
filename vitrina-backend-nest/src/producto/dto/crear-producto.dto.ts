@@ -14,7 +14,7 @@ export class CrearProductoDto {
 
   @ApiProperty({ example: 'https://storage.vitrina.app/fotos/arroz.jpg' })
   @IsString()
-  fotoUrl: string;
+  fotoUrl!: string;
 
   @ApiPropertyOptional({ example: 1 })
   @IsOptional()
@@ -24,5 +24,5 @@ export class CrearProductoDto {
 
   @ApiProperty({ example: 1, description: 'Id del negocio dueño del producto' })
   @IsInt()
-  negocioId: number;
+  negocioId!: number;
 }
