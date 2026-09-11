@@ -1,16 +1,17 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
+import { CompletarPerfilDto } from './dto/completar-perfil.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async registrar(dto: RegistroDto) {
     const existente = await this.prisma.usuario.findUnique({
@@ -48,5 +49,40 @@ export class AuthService {
     const token = this.jwtService.sign({ sub: usuario.id, telefono: usuario.telefono });
 
     return { access_token: token };
+  }
+
+  async completarPerfil(usuarioId: number, dto: CompletarPerfilDto) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      include: { negocio: true },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (usuario.negocio) {
+      return this.prisma.negocio.update({
+        where: { id: usuario.negocio.id },
+        data: {
+          nombre: dto.nombreNegocio,
+          barrio: dto.barrio,
+          descripcion: dto.descripcion,
+          latitud: dto.latitud,
+          longitud: dto.longitud,
+        },
+      });
+    }
+
+    return this.prisma.negocio.create({
+      data: {
+        nombre: dto.nombreNegocio,
+        barrio: dto.barrio,
+        descripcion: dto.descripcion,
+        latitud: dto.latitud,
+        longitud: dto.longitud,
+        usuarioId,
+      },
+    });
   }
 }
