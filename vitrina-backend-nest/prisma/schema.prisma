@@ -18,7 +18,8 @@ enum EstadoProducto {
 model Usuario {
   id                    Int      @id @default(autoincrement())
   nombre                String
-  email                 String   @unique
+  email                 String?  @unique
+  telefono              String   @unique
   passwordHash          String
   onboardingCompletado  Boolean  @default(false)
   creadoEn              DateTime @default(now())
