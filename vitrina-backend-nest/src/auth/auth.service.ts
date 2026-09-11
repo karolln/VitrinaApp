@@ -18,17 +18,17 @@ export class AuthService {
 
   async registrar(dto: RegistroDto) {
     const existente = await this.prisma.usuario.findUnique({
-      where: { celular: dto.celular },
+      where: { telefono: dto.telefono },
     });
 
     if (existente) {
-      throw new ConflictException('Ya existe una cuenta registrada con ese número de celular');
+      throw new ConflictException('Ya existe una cuenta registrada con ese número de teléfono');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const usuario = await this.prisma.usuario.create({
-      data: { nombre: dto.nombre, celular: dto.celular, passwordHash },
+      data: { nombre: dto.nombre, telefono: dto.telefono, passwordHash },
     });
 
     const { passwordHash: _, ...usuarioSinPassword } = usuario;
@@ -37,19 +37,19 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const usuario = await this.prisma.usuario.findUnique({
-      where: { celular: dto.celular },
+      where: { telefono: dto.telefono },
     });
 
     if (!usuario) {
-      throw new UnauthorizedException('Celular o contraseña incorrectos');
+      throw new UnauthorizedException('Teléfono o contraseña incorrectos');
     }
 
     const passwordValida = await bcrypt.compare(dto.password, usuario.passwordHash);
     if (!passwordValida) {
-      throw new UnauthorizedException('Celular o contraseña incorrectos');
+      throw new UnauthorizedException('Teléfono o contraseña incorrectos');
     }
 
-    const token = this.jwtService.sign({ sub: usuario.id, celular: usuario.celular });
+    const token = this.jwtService.sign({ sub: usuario.id, telefono: usuario.telefono });
 
     return { access_token: token };
   }
