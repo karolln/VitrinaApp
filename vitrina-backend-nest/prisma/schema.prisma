@@ -59,3 +59,13 @@ model Producto {
 
   @@index([negocioId])
 }
+model CodigoRecuperacion {
+  id        Int      @id @default(autoincrement())
+  celular   String
+  codigo    String
+  expiraEn  DateTime
+  usado     Boolean  @default(false)
+  creadoEn  DateTime @default(now())
+
+  @@index([celular])
+}
