@@ -19,6 +19,7 @@ async function bootstrap() {
       'API del backend de VitrinaApp: catálogo de productos y visibilidad de negocios informales de barrio.',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document); // documentación disponible en /docs

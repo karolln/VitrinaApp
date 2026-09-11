@@ -1,14 +1,15 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { CompletarPerfilDto } from './dto/completar-perfil.dto';
 import { SolicitarRecuperacionDto } from './dto/solicitar-recuperacion.dto';
 import { VerificarCodigoDto } from './dto/verificar-codigo.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import * as crypto from 'crypto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -53,7 +54,43 @@ export class AuthService {
 
     return { access_token: token };
   }
-    /**
+
+  async completarPerfil(usuarioId: number, dto: CompletarPerfilDto) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      include: { negocio: true },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (usuario.negocio) {
+      return this.prisma.negocio.update({
+        where: { id: usuario.negocio.id },
+        data: {
+          nombre: dto.nombreNegocio,
+          barrio: dto.barrio,
+          descripcion: dto.descripcion,
+          latitud: dto.latitud,
+          longitud: dto.longitud,
+        },
+      });
+    }
+
+    return this.prisma.negocio.create({
+      data: {
+        nombre: dto.nombreNegocio,
+        barrio: dto.barrio,
+        descripcion: dto.descripcion,
+        latitud: dto.latitud,
+        longitud: dto.longitud,
+        usuarioId,
+      },
+    });
+  }
+
+  /**
    * HU-03 — Paso 1: Solicitar código de recuperación
    */
   async solicitarRecuperacion(dto: SolicitarRecuperacionDto) {
@@ -72,12 +109,10 @@ export class AuthService {
       data: { celular: dto.celular, codigo, expiraEn },
     });
 
-    // Simulado: en producción esto se enviaría por SMS/WhatsApp real.
     console.log(`[Recuperación] Código para ${dto.celular}: ${codigo}`);
 
     return {
       mensaje: 'Código generado correctamente',
-      // Solo para pruebas: en producción NUNCA se devuelve el código en la respuesta.
       codigoSimulado: codigo,
       expiraEn,
     };
@@ -103,7 +138,9 @@ export class AuthService {
     return { valido: true, mensaje: 'Código verificado correctamente' };
   }
 
-  //3
+  /**
+   * HU-03 — Paso 3: Restablecer contraseña
+   */
   async resetPassword(dto: ResetPasswordDto) {
     const registro = await (this.prisma as any).codigoRecuperacion.findFirst({
       where: { celular: dto.celular, codigo: dto.codigo, usado: false },

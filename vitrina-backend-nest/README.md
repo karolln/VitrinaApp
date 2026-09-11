@@ -1,6 +1,5 @@
 # VitrinaApp — Backend (NestJS)
 
-> **Nota sobre numeración:** las HU de este README ya están alineadas con los códigos reales del backlog en Jira (ACT-11 a ACT-23). El módulo de onboarding es una funcionalidad adicional que no está numerada en el backlog oficial; no reemplaza ninguna HU pendiente (autenticación, editar/eliminar producto, compartir por WhatsApp, estadísticas), que quedan para un próximo sprint.
 
 Backend de VitrinaApp construido con **NestJS**, reemplazando la versión inicial en Express por una arquitectura más estructurada (módulos, inyección de dependencias, validación automática y documentación Swagger).
 
