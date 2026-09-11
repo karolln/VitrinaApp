@@ -1,13 +1,36 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearProductoDto } from './dto/crear-producto.dto';
+import { CrearProductoFotoDto } from './dto/crear-producto-foto.dto';
 
 @Injectable()
 export class ProductoService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * HU-05 — Agregar producto por foto
+   * HU-05 — Agregar producto tomando una foto
+   */
+  async crearConFoto(
+    dto: CrearProductoFotoDto,
+    fotoUrl: string,
+    sugerencia: { nombre: string; categoria: string },
+  ) {
+    const negocio = await this.prisma.negocio.findUnique({ where: { id: dto.negocioId } });
+    if (!negocio) throw new NotFoundException('El negocio indicado no existe');
+
+    return this.prisma.producto.create({
+      data: {
+        nombre: dto.nombre || sugerencia.nombre,
+        categoria: dto.categoria || sugerencia.categoria,
+        fotoUrl,
+        cantidad: dto.cantidad ?? 1,
+        estado: 'disponible',
+        negocioId: dto.negocioId,
+      },
+    });
+  }
+    /**
+   * Agregar producto manualmente (sin foto)
    */
   async crear(dto: CrearProductoDto) {
     const negocio = await this.prisma.negocio.findUnique({ where: { id: dto.negocioId } });
@@ -24,7 +47,6 @@ export class ProductoService {
       },
     });
   }
-
   /**
    * HU-09 — Ver listado de productos
    */
