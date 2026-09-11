@@ -1,17 +1,21 @@
-import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
 import { CompletarPerfilDto } from './dto/completar-perfil.dto';
+import { SolicitarRecuperacionDto } from './dto/solicitar-recuperacion.dto';
+import { VerificarCodigoDto } from './dto/verificar-codigo.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async registrar(dto: RegistroDto) {
     const existente = await this.prisma.usuario.findUnique({
@@ -84,5 +88,90 @@ export class AuthService {
         usuarioId,
       },
     });
+  }
+
+  /**
+   * HU-03 — Paso 1: Solicitar código de recuperación
+   */
+  async solicitarRecuperacion(dto: SolicitarRecuperacionDto) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { telefono: dto.celular },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('No existe una cuenta registrada con ese celular');
+    }
+
+    const codigo = crypto.randomInt(100000, 999999).toString();
+    const expiraEn = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+
+    await (this.prisma as any).codigoRecuperacion.create({
+      data: { celular: dto.celular, codigo, expiraEn },
+    });
+
+    console.log(`[Recuperación] Código para ${dto.celular}: ${codigo}`);
+
+    return {
+      mensaje: 'Código generado correctamente',
+      codigoSimulado: codigo,
+      expiraEn,
+    };
+  }
+
+  /**
+   * HU-03 — Paso 2: Verificar código
+   */
+  async verificarCodigo(dto: VerificarCodigoDto) {
+    const registro = await (this.prisma as any).codigoRecuperacion.findFirst({
+      where: { celular: dto.celular, codigo: dto.codigo, usado: false },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    if (!registro) {
+      throw new BadRequestException('Código incorrecto o ya utilizado');
+    }
+
+    if (registro.expiraEn < new Date()) {
+      throw new BadRequestException('El código expiró, solicita uno nuevo');
+    }
+
+    return { valido: true, mensaje: 'Código verificado correctamente' };
+  }
+
+  /**
+   * HU-03 — Paso 3: Restablecer contraseña
+   */
+  async resetPassword(dto: ResetPasswordDto) {
+    const registro = await (this.prisma as any).codigoRecuperacion.findFirst({
+      where: { celular: dto.celular, codigo: dto.codigo, usado: false },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    if (!registro) {
+      throw new BadRequestException('Código incorrecto o ya utilizado');
+    }
+
+    if (registro.expiraEn < new Date()) {
+      throw new BadRequestException('El código expiró, solicita uno nuevo');
+    }
+
+    const usuario = await this.prisma.usuario.findUnique({ where: { telefono: dto.celular } });
+    if (!usuario) {
+      throw new NotFoundException('No existe una cuenta registrada con ese celular');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.nuevaPassword, 10);
+
+    await this.prisma.usuario.update({
+      where: { telefono: dto.celular },
+      data: { passwordHash },
+    });
+
+    await (this.prisma as any).codigoRecuperacion.update({
+      where: { id: registro.id },
+      data: { usado: true },
+    });
+
+    return { mensaje: 'Contraseña actualizada correctamente' };
   }
 }
