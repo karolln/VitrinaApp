@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 export class LoginDto {
-  @ApiProperty({ example: '3001234567' })
+  @ApiProperty({ example: '3001234567', description: 'Número de teléfono (10 dígitos, Colombia)' })
   @IsString()
-  celular: string;
+  telefono: string;
 
   @ApiProperty({ example: 'MiPassword123' })
   @IsString()
