@@ -3,10 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class NegocioService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * HU-04 — Perfil público del negocio
+   * HU-10 — Perfil público del negocio
    */
   async perfilPublico(id: number) {
     const negocio = await this.prisma.negocio.findUnique({
@@ -25,22 +25,19 @@ export class NegocioService {
       productos: negocio.productos,
     };
   }
+
   /**
-   * HU-05 — Buscar negocios por nombre o ubicación
+   * HU-12 — Buscar negocios por nombre o ubicación
    */
   async buscar(nombre?: string, barrio?: string) {
-    const nombreLimpio = nombre?.trim();
-    const barrioLimpio = barrio?.trim();
-
     return this.prisma.negocio.findMany({
       where: {
         AND: [
-          nombreLimpio ? { nombre: { contains: nombreLimpio, mode: 'insensitive' as const } } : {},
-          barrioLimpio ? { barrio: { equals: barrioLimpio, mode: 'insensitive' as const } } : {},
+          nombre ? { nombre: { contains: nombre, mode: 'insensitive' as const } } : {},
+          barrio ? { barrio: { equals: barrio, mode: 'insensitive' as const } } : {},
         ],
       },
       orderBy: { nombre: 'asc' },
     });
   }
 }
-

@@ -1,5 +1,7 @@
 # VitrinaApp — Backend (NestJS)
 
+> **Nota sobre numeración:** las HU de este README ya están alineadas con los códigos reales del backlog en Jira (ACT-11 a ACT-23). El módulo de onboarding es una funcionalidad adicional que no está numerada en el backlog oficial; no reemplaza ninguna HU pendiente (autenticación, editar/eliminar producto, compartir por WhatsApp, estadísticas), que quedan para un próximo sprint.
+
 Backend de VitrinaApp construido con **NestJS**, reemplazando la versión inicial en Express por una arquitectura más estructurada (módulos, inyección de dependencias, validación automática y documentación Swagger).
 
 ## Stack
@@ -29,18 +31,18 @@ vitrina-backend-nest/
 │   ├── prisma/
 │   │   ├── prisma.service.ts   # Cliente de Prisma inyectable
 │   │   └── prisma.module.ts
-│   ├── producto/                # HU-01, HU-02, HU-03
+│   ├── producto/                # HU-05, HU-08, HU-09
 │   │   ├── dto/crear-producto.dto.ts
 │   │   ├── producto.controller.ts
 │   │   ├── producto.service.ts
 │   │   ├── producto.service.spec.ts
 │   │   └── producto.module.ts
-│   ├── negocio/                 # HU-04, HU-05
+│   ├── negocio/                 # HU-10, HU-12
 │   │   ├── negocio.controller.ts
 │   │   ├── negocio.service.ts
 │   │   ├── negocio.service.spec.ts
 │   │   └── negocio.module.ts
-│   └── onboarding/              # HU-06
+│   └── onboarding/              # Extra: recorrido guiado (no numerada en el backlog oficial de Jira)
 │       ├── onboarding.controller.ts
 │       ├── onboarding.service.ts
 │       ├── onboarding.service.spec.ts
@@ -75,13 +77,13 @@ npm test
 
 | Método | Ruta                              | Historia | Descripción |
 |--------|------------------------------------|----------|-------------|
-| POST   | /api/productos                     | HU-01    | Crear producto con foto |
-| GET    | /api/productos/negocio/:negocioId  | HU-02    | Listar productos de un negocio |
-| PATCH  | /api/productos/:id/estado          | HU-03    | Alternar disponible/agotado |
-| GET    | /api/negocios/:id                  | HU-04    | Perfil público del negocio |
-| GET    | /api/negocios/buscar?nombre=&barrio= | HU-05  | Buscar negocios |
-| GET    | /api/onboarding/:usuarioId         | HU-06    | Consultar estado de onboarding |
-| POST   | /api/onboarding/:usuarioId/completar | HU-06  | Completar/saltar onboarding |
+| POST   | /api/productos                     | HU-05    | Crear producto con foto |
+| GET    | /api/productos/negocio/:negocioId  | HU-09    | Listar productos de un negocio |
+| PATCH  | /api/productos/:id/estado          | HU-08    | Alternar disponible/agotado |
+| GET    | /api/negocios/:id                  | HU-10    | Perfil público del negocio |
+| GET    | /api/negocios/buscar?nombre=&barrio= | HU-12  | Buscar negocios |
+| GET    | /api/onboarding/:usuarioId         | Extra    | Consultar estado de onboarding |
+| POST   | /api/onboarding/:usuarioId/completar | Extra  | Completar/saltar onboarding |
 
 ## Flujo de Git sugerido
 
