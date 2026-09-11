@@ -58,7 +58,7 @@ export class AuthService {
    */
   async solicitarRecuperacion(dto: SolicitarRecuperacionDto) {
     const usuario = await this.prisma.usuario.findUnique({
-      where: { celular: dto.celular },
+      where: { telefono: dto.celular },
     });
 
     if (!usuario) {
@@ -118,7 +118,7 @@ export class AuthService {
       throw new BadRequestException('El código expiró, solicita uno nuevo');
     }
 
-    const usuario = await this.prisma.usuario.findUnique({ where: { celular: dto.celular } });
+    const usuario = await this.prisma.usuario.findUnique({ where: { telefono: dto.celular } });
     if (!usuario) {
       throw new NotFoundException('No existe una cuenta registrada con ese celular');
     }
@@ -126,7 +126,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.nuevaPassword, 10);
 
     await this.prisma.usuario.update({
-      where: { celular: dto.celular },
+      where: { telefono: dto.celular },
       data: { passwordHash },
     });
 
