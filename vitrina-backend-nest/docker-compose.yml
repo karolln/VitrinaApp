@@ -16,7 +16,7 @@ services:
   backend:
     build: .
     ports:
-      - "3000:3000"
+      - "8082:3000"   # <-- Puerto externo 8082 mapeado al interno 3000
     environment:
       DATABASE_URL: postgresql://postgres:1234@db:5432/vitrina_db?schema=public
       JWT_SECRET: mi_secreto_super_seguro_123
