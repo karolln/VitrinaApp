@@ -1,0 +1,26 @@
+name: Deploy to Apolobyte
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: vmi3270736.contaboserver.net
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /opt/vitrina-backend-nest
+            git pull origin dev
+            docker compose down
+            docker compose up -d --build
+            docker image prune -f
