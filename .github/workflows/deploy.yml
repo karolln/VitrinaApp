@@ -2,7 +2,7 @@ name: Deploy VitrinaApp
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   workflow_dispatch:
 
 jobs:
@@ -21,10 +21,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /opt/vitrina-backend-nest
+            cd /opt/VitrinaApp/vitrina-backend-nest
             git fetch
-            git checkout main
-            git pull origin main
+            git checkout dev
+            git pull origin dev
             docker compose down
             docker compose up -d --build
             docker image prune -f
