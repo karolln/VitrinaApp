@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; //configura sw
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { LANDING_HTML } from './landing';
+import type { Request, Response } from 'express';
 
 ////construir la app
 async function bootstrap() {
@@ -26,8 +28,11 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config); //crea la documentación
   SwaggerModule.setup('docs', app, document); // documentación disponible en /docs
-//se enciende el puerto
+  //se enciende el puerto
   const port = process.env.PORT || 3000;
+  app.getHttpAdapter().get('/', (_req: Request, res: Response) => {
+  res.type('html').send(LANDING_HTML);
+});
   await app.listen(port);
   console.log(`VitrinaApp backend (NestJS) corriendo en http://localhost:${port}`);
   console.log(`Documentación Swagger en http://localhost:${port}/docs`);
