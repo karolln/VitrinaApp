@@ -5,11 +5,11 @@ export class CompletarPerfilDto {
   @ApiProperty({ example: 'Tienda Doña Lucía' })
   @IsString()
   @MinLength(2)
-  nombreNegocio: string;
+  nombreNegocio!: string;
 
   @ApiProperty({ example: 'La Esmeralda' })
   @IsString()
-  barrio: string;
+  barrio!: string;
 
   @ApiPropertyOptional({ example: 'Abarrotes, víveres y productos de aseo' })
   @IsOptional()
