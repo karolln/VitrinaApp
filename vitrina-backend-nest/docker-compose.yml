@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: vitrina_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -14,10 +12,10 @@ services:
   backend:
     build: .
     ports:
-      - "8082:3000"   # <-- Puerto externo 8082 mapeado al interno 3000
+      - "8082:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:1234@db:5432/vitrina_db?schema=public
-      JWT_SECRET: mi_secreto_super_seguro_123
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@db:5432/vitrina_db?schema=public
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - db
     restart: always
