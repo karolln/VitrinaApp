@@ -5,11 +5,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+//url de la bdd local
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+//sirve para el estado de cada producto en el catálogo (Épica 1)
 enum EstadoProducto {
   disponible
   agotado
