@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { CrearProductoFotoDto } from './dto/crear-producto-foto.dto';
+import { ActualizarProductoDto } from './dto/actualizar-producto.dto';
 
 @Injectable()
 export class ProductoService {
@@ -69,6 +70,28 @@ export class ProductoService {
     return this.prisma.producto.update({
       where: { id },
       data: { estado: nuevoEstado },
+    });
+  }
+    /**
+   * HU-06 — Editar producto
+   */
+  async actualizar(id: number, dto: ActualizarProductoDto) {
+    const producto = await this.prisma.producto.findUnique({ where: { id } });
+    if (!producto) throw new NotFoundException('Producto no encontrado');
+
+    const { nombre, categoria, fotoUrl, cantidad } = dto;
+    if (
+      nombre === undefined &&
+      categoria === undefined &&
+      fotoUrl === undefined &&
+      cantidad === undefined
+    ) {
+      throw new BadRequestException('Envía al menos un campo para editar');
+    }
+
+    return this.prisma.producto.update({
+      where: { id },
+      data: { nombre, categoria, fotoUrl, cantidad },
     });
   }
 }
