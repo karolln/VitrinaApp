@@ -40,5 +40,36 @@ export class NegocioService {
       orderBy: { nombre: 'asc' },
     });
   }
+
+  /**
+   * HU-11 — Compartir negocio por WhatsApp
+   */
+    async generarLinkCompartir(id: number) {
+    const negocio = await this.prisma.negocio.findUnique({
+      where: { id },
+      include: { usuario: { select: { telefono: true } } },
+    });
+    if (!negocio) {
+      throw new NotFoundException('Negocio no encontrado');
+    }
+
+    const base =
+      process.env.PUBLIC_BASE_URL ?? 'https://vitrina-dev.apolobyte.online';
+    const url = `${base}/api/negocios/${negocio.id}`;
+
+    const telefono = negocio.usuario.telefono.replace(/\D/g, '');
+    const contactoWhatsapp = `https://wa.me/57${telefono}`;
+
+    const mensaje =
+      `¡Mira mi negocio "${negocio.nombre}" en VitrinaApp! 🛍️ ${url}\n` +
+      `Escríbeme por WhatsApp: ${contactoWhatsapp}`;
+
+    return {
+      url,
+      contactoWhatsapp,
+      mensaje,
+      whatsappUrl: `https://wa.me/?text=${encodeURIComponent(mensaje)}`,
+    };
+  }
 }
 // Revision HU-10 Santiago
