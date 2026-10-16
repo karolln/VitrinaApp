@@ -20,4 +20,10 @@ export class NegocioController {
   perfilPublico(@Param('id', ParseIntPipe) id: number) {
     return this.negocioService.perfilPublico(id);
   }
+
+  @Get(':id/compartir')
+  @ApiOperation({ summary: 'HU-11: Generar enlace para compartir el negocio por WhatsApp' })
+  compartir(@Param('id', ParseIntPipe) id: number) {
+  return this.negocioService.generarLinkCompartir(id);
+  }
 }
