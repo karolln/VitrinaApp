@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -75,6 +75,35 @@ describe('ProductoService', () => {
       prisma.producto.findUnique.mockResolvedValue(null);
 
       await expect(service.cambiarEstado(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('HU-06: editar producto', () => {
+    it('actualiza el producto con los campos enviados', async () => {
+      prisma.producto.findUnique.mockResolvedValue({ id: 1, nombre: 'Arroz' });
+      prisma.producto.update.mockResolvedValue({ id: 1, nombre: 'Arroz Diana 1kg' });
+
+      const resultado = await service.actualizar(1, { nombre: 'Arroz Diana 1kg' });
+
+      expect(resultado.nombre).toBe('Arroz Diana 1kg');
+      expect(prisma.producto.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 1 } }),
+      );
+    });
+
+    it('lanza NotFoundException si el producto no existe', async () => {
+      prisma.producto.findUnique.mockResolvedValue(null);
+
+      await expect(service.actualizar(999, { nombre: 'X' })).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(prisma.producto.update).not.toHaveBeenCalled();
+    });
+
+    it('lanza BadRequestException si no se envía ningún campo', async () => {
+      prisma.producto.findUnique.mockResolvedValue({ id: 1 });
+
+      await expect(service.actualizar(1, {})).rejects.toThrow(BadRequestException);
+      expect(prisma.producto.update).not.toHaveBeenCalled();
     });
   });
 });

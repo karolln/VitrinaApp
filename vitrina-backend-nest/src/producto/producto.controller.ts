@@ -10,6 +10,7 @@ import { ProductoService } from './producto.service';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { CrearProductoFotoDto } from './dto/crear-producto-foto.dto';
 import { GeminiVisionService } from '../integraciones/gemini-vision/gemini-vision.service';
+import { ActualizarProductoDto } from './dto/actualizar-producto.dto';
 
 @ApiTags('Catálogo (HU-05, HU-08, HU-09)')
 @Controller('api/productos')
@@ -17,7 +18,7 @@ export class ProductoController {
   constructor(
     private readonly productoService: ProductoService,
     private readonly geminiVision: GeminiVisionService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Agregar producto manualmente' })
@@ -74,6 +75,15 @@ export class ProductoController {
   @ApiOperation({ summary: 'HU-09: Ver listado de productos de un negocio' })
   listarPorNegocio(@Param('negocioId', ParseIntPipe) negocioId: number) {
     return this.productoService.listarPorNegocio(negocioId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'HU-06: Editar producto' })
+  editar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ActualizarProductoDto,
+  ) {
+    return this.productoService.actualizar(id, dto);
   }
 
   @Patch(':id/estado')
