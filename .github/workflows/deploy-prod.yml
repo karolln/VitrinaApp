@@ -54,6 +54,8 @@ jobs:
             printf 'DB_PASSWORD=%s\nJWT_SECRET=%s\nAPP_PORT=8083\n' '${{ secrets.PROD_DB_PASSWORD }}' '${{ secrets.PROD_JWT_SECRET }}' > .env
             docker compose -p vitrina-prod down
             docker compose -p vitrina-prod up -d --build
+            sleep 10
+            docker compose -p vitrina-prod exec -T backend npx prisma migrate deploy
             docker image prune -f
 
   notify:
