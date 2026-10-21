@@ -6,7 +6,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vitrina-backend-nest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: vitrina-backend-nest/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run unit tests
+        run: npm test
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,3 +54,26 @@ jobs:
             docker compose down
             docker compose up -d --build
             docker image prune -f
+
+  notify:
+    needs: [test, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Resumen en GitHub
+        run: |
+          echo "## Resultado del CI/CD" >> $GITHUB_STEP_SUMMARY
+          echo "- Pruebas: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Despliegue: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Crear issue si algo falla
+        if: needs.test.result != 'success' || needs.deploy.result != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo ${{ github.repository }} \
+            --title "❌ Falló el CI/CD en dev" \
+            --body "Pruebas: ${{ needs.test.result }}. Despliegue: ${{ needs.deploy.result }}. Ver ejecución: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
