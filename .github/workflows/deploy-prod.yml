@@ -1,0 +1,82 @@
+name: Deploy producción
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vitrina-backend-nest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: vitrina-backend-nest/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run tests
+        run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy a producción
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            mkdir -p /$HOME/VitrinaApp-prod
+            cd /$HOME/VitrinaApp-prod
+            [ -d .git ] || git clone https://github.com/karolln/VitrinaApp.git .
+            git fetch origin
+            git checkout main
+            git pull origin main
+            cd vitrina-backend-nest
+            printf 'DB_PASSWORD=%s\nJWT_SECRET=%s\nAPP_PORT=8083\n' '${{ secrets.PROD_DB_PASSWORD }}' '${{ secrets.PROD_JWT_SECRET }}' > .env
+            docker compose -p vitrina-prod down
+            docker compose -p vitrina-prod up -d --build
+            sleep 10
+            docker compose -p vitrina-prod exec -T backend npx prisma migrate deploy
+            docker image prune -f
+
+  notify:
+    needs: [test, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Resumen en GitHub
+        run: |
+          echo "## Resultado del CI/CD (producción)" >> $GITHUB_STEP_SUMMARY
+          echo "- Pruebas: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Despliegue: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Crear issue si algo falla
+        if: needs.test.result != 'success' || needs.deploy.result != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo ${{ github.repository }} \
+            --title "❌ Falló el CI/CD en producción (main)" \
+            --body "Pruebas: ${{ needs.test.result }}. Despliegue: ${{ needs.deploy.result }}. Ver ejecución: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
