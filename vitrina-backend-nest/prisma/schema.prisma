@@ -42,6 +42,7 @@ model Negocio {
   usuario       Usuario    @relation(fields: [usuarioId], references: [id])
 
   productos     Producto[]
+  visitas       Visita[]
 
   @@index([nombre])
   @@index([barrio])
@@ -70,4 +71,12 @@ model CodigoRecuperacion {
   creadoEn  DateTime @default(now())
 
   @@index([celular])
+}
+model Visita {
+  id         Int      @id @default(autoincrement())
+  negocioId  Int
+  negocio    Negocio  @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  creadoEn   DateTime @default(now())
+
+  @@index([negocioId])
 }

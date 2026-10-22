@@ -1,8 +1,8 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { NegocioService } from './negocio.service';
 
-@ApiTags('Visibilidad (HU-10, HU-12)')
+@ApiTags('Visibilidad (HU-10, HU-12, HU-13)')
 @Controller('api/negocios')
 export class NegocioController {
   constructor(private readonly negocioService: NegocioService) {}
@@ -21,9 +21,15 @@ export class NegocioController {
     return this.negocioService.perfilPublico(id);
   }
 
-  @Get(':id/compartir')
-  @ApiOperation({ summary: 'HU-11: Generar enlace para compartir el negocio por WhatsApp' })
-  compartir(@Param('id', ParseIntPipe) id: number) {
-  return this.negocioService.generarLinkCompartir(id);
+  @Post(':id/visita')
+  @ApiOperation({ summary: 'HU-13: Registrar una visita al negocio' })
+  registrarVisita(@Param('id', ParseIntPipe) id: number) {
+    return this.negocioService.registrarVisita(id);
+  }
+
+  @Get(':id/estadisticas')
+  @ApiOperation({ summary: 'HU-13: Ver estadísticas de visitas al negocio' })
+  obtenerEstadisticas(@Param('id', ParseIntPipe) id: number) {
+    return this.negocioService.obtenerEstadisticas(id);
   }
 }

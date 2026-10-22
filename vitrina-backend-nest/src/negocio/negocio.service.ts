@@ -5,9 +5,6 @@ import { PrismaService } from '../prisma/prisma.service';
 export class NegocioService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * HU-10 — Perfil público del negocio
-   */
   async perfilPublico(id: number) {
     const negocio = await this.prisma.negocio.findUnique({
       where: { id },
@@ -26,9 +23,6 @@ export class NegocioService {
     };
   }
 
-  /**
-   * HU-12 — Buscar negocios por nombre o ubicación
-   */
   async buscar(nombre?: string, barrio?: string) {
     return this.prisma.negocio.findMany({
       where: {
@@ -41,35 +35,35 @@ export class NegocioService {
     });
   }
 
-  /**
-   * HU-11 — Compartir negocio por WhatsApp
-   */
-    async generarLinkCompartir(id: number) {
+  async registrarVisita(id: number) {
     const negocio = await this.prisma.negocio.findUnique({
       where: { id },
-      include: { usuario: { select: { telefono: true } } },
     });
-    if (!negocio) {
-      throw new NotFoundException('Negocio no encontrado');
-    }
 
-    const base =
-      process.env.PUBLIC_BASE_URL ?? 'https://vitrina-dev.apolobyte.online';
-    const url = `${base}/api/negocios/${negocio.id}`;
+    if (!negocio) throw new NotFoundException('Negocio no encontrado');
 
-    const telefono = negocio.usuario.telefono.replace(/\D/g, '');
-    const contactoWhatsapp = `https://wa.me/57${telefono}`;
+    await this.prisma.visita.create({
+      data: { negocioId: id },
+    });
 
-    const mensaje =
-      `¡Mira mi negocio "${negocio.nombre}" en VitrinaApp! 🛍️ ${url}\n` +
-      `Escríbeme por WhatsApp: ${contactoWhatsapp}`;
+    return { message: 'Visita registrada exitosamente' };
+  }
+
+  async obtenerEstadisticas(id: number) {
+    const negocio = await this.prisma.negocio.findUnique({
+      where: { id },
+    });
+
+    if (!negocio) throw new NotFoundException('Negocio no encontrado');
+
+    const totalVisitas = await this.prisma.visita.count({
+      where: { negocioId: id },
+    });
 
     return {
-      url,
-      contactoWhatsapp,
-      mensaje,
-      whatsappUrl: `https://wa.me/?text=${encodeURIComponent(mensaje)}`,
+      negocioId: id,
+      nombreNegocio: negocio.nombre,
+      totalVisitas,
     };
   }
 }
-// Revision HU-10 Santiago
