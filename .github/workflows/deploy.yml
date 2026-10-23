@@ -13,7 +13,7 @@ jobs:
         working-directory: vitrina-backend-nest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -28,17 +28,14 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Run unit tests
+      - name: Run tests
         run: npm test
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy to Apolobyte Server
+      - name: Deploy a desarrollo
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -48,13 +45,20 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           command_timeout: 30m
           script: |
-            cd /opt/VitrinaApp/vitrina-backend-nest
-            git fetch
+            OLD=/opt/VitrinaApp/vitrina-backend-nest
+            if [ -d "$OLD" ]; then (cd "$OLD" && docker compose down) || true; fi
+            mkdir -p $HOME/VitrinaApp-dev
+            cd $HOME/VitrinaApp-dev
+            [ -d .git ] || git clone https://github.com/karolln/VitrinaApp.git .
+            git fetch origin
             git checkout dev
             git pull origin dev
-            docker compose down
-            docker compose up -d --build
-            docker image prune -f
+            cd vitrina-backend-nest
+            printf 'DB_PASSWORD=%s\nJWT_SECRET=%s\nAPP_PORT=8082\n' '${{ secrets.DEV_DB_PASSWORD }}' '${{ secrets.DEV_JWT_SECRET }}' > .env
+            docker compose -p vitrina-dev build
+            docker compose -p vitrina-dev up -d
+            sleep 10
+            docker compose -p vitrina-dev exec -T backend npx prisma migrate deploy
 
   notify:
     needs: [test, deploy]
@@ -65,7 +69,7 @@ jobs:
     steps:
       - name: Resumen en GitHub
         run: |
-          echo "## Resultado del CI/CD" >> $GITHUB_STEP_SUMMARY
+          echo "## Resultado del CI/CD (desarrollo)" >> $GITHUB_STEP_SUMMARY
           echo "- Pruebas: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Despliegue: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
 
