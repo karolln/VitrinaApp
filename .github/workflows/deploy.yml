@@ -46,6 +46,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          command_timeout: 30m
           script: |
             cd /opt/VitrinaApp/vitrina-backend-nest
             git fetch
