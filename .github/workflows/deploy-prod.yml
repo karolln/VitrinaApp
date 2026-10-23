@@ -40,6 +40,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
+          command_timeout: 30m
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
@@ -52,8 +53,8 @@ jobs:
             git pull origin main
             cd vitrina-backend-nest
             printf 'DB_PASSWORD=%s\nJWT_SECRET=%s\nAPP_PORT=8083\n' '${{ secrets.PROD_DB_PASSWORD }}' '${{ secrets.PROD_JWT_SECRET }}' > .env
-            docker compose -p vitrina-prod down
-            docker compose -p vitrina-prod up -d --build
+            docker compose -p vitrina-prod build
+            docker compose -p vitrina-prod up -d
             sleep 10
             docker compose -p vitrina-prod exec -T backend npx prisma migrate deploy
             docker image prune -f
