@@ -57,7 +57,6 @@ jobs:
             docker compose -p vitrina-prod up -d
             sleep 10
             docker compose -p vitrina-prod exec -T backend npx prisma migrate deploy
-            docker image prune -f
 
   notify:
     needs: [test, deploy]
