@@ -23,10 +23,11 @@ Si las pruebas fallan, no se despliega y el servidor conserva la versión anteri
 
 ## Variables de entorno
 
-El archivo `.env` no se sube al repositorio. En producción, el workflow lo genera en el servidor a partir de los *Secrets* de GitHub:
+El archivo `.env` no se sube al repositorio.En dev y en producción, el workflow lo genera en el servidor a partir de los *Secrets* de GitHub:
 
 - `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `SSH_PORT`, `SSH_PASSPHRASE`: acceso al servidor.
 - `PROD_DB_PASSWORD`, `PROD_JWT_SECRET`: contraseña de la base de datos y clave JWT de producción.
+- `DEV_DB_PASSWORD`, `DEV_JWT_SECRET` : contraseña de la base de datos y clave JWT de desarrollo.
 
 El puerto de la app se define con `APP_PORT` (por defecto 8082).
 
