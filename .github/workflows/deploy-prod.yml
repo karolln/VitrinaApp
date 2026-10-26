@@ -45,8 +45,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            mkdir -p /$HOME/VitrinaApp-prod
-            cd /$HOME/VitrinaApp-prod
+            mkdir -p $HOME/VitrinaApp-prod
+            cd $HOME/VitrinaApp-prod
             [ -d .git ] || git clone https://github.com/karolln/VitrinaApp.git .
             git fetch origin
             git checkout main
@@ -57,7 +57,6 @@ jobs:
             docker compose -p vitrina-prod up -d
             sleep 10
             docker compose -p vitrina-prod exec -T backend npx prisma migrate deploy
-            docker image prune -f
 
   notify:
     needs: [test, deploy]
