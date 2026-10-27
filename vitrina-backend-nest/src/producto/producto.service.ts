@@ -6,7 +6,7 @@ import { ActualizarProductoDto } from './dto/actualizar-producto.dto';
 
 @Injectable()
 export class ProductoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * HU-05 — Agregar producto tomando una foto
@@ -30,9 +30,9 @@ export class ProductoService {
       },
     });
   }
-    /**
-   * Agregar producto manualmente (sin foto)
-   */
+  /**
+ * Agregar producto manualmente (sin foto)
+ */
   async crear(dto: CrearProductoDto) {
     const negocio = await this.prisma.negocio.findUnique({ where: { id: dto.negocioId } });
     if (!negocio) throw new NotFoundException('El negocio indicado no existe');
@@ -72,12 +72,12 @@ export class ProductoService {
       data: { estado: nuevoEstado },
     });
   }
-    /**
-   * HU-06 — Editar producto
-   */
+  /**
+ * HU-06 — Editar producto
+ */
   async actualizar(id: number, dto: ActualizarProductoDto) {
     const producto = await this.prisma.producto.findUnique({ where: { id } });
-    if (!producto) throw new NotFoundException('Producto no encontrado');
+    //if (!producto) throw new NotFoundException('Producto no encontrado');
 
     const { nombre, categoria, fotoUrl, cantidad } = dto;
     if (
