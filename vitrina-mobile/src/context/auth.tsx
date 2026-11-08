@@ -1,4 +1,4 @@
-import * as SecureStore from "expo-secure-store";
+import { almacen } from "../lib/almacen";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 
@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    SecureStore.getItemAsync(TOKEN_KEY)
+    almacen.leer(TOKEN_KEY)
       .then(setToken)
       .finally(() => setCargando(false));
   }, []);
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ telefono, password }),
     });
-    await SecureStore.setItemAsync(TOKEN_KEY, access_token);
+    await almacen.guardar(TOKEN_KEY, access_token);
     setToken(access_token);
   }
 
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function cerrarSesion() {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await almacen.borrar(TOKEN_KEY);
     setToken(null);
   }
 
