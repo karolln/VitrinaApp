@@ -13,14 +13,15 @@ export function Boton({ titulo, onPress, cargando = false, variante = "primario"
     <Pressable
       onPress={onPress}
       disabled={cargando}
-      className={`items-center rounded-full py-4 ${
+      accessibilityRole="button"
+      className={`h-12 items-center justify-center rounded-full active:opacity-80 ${
         primario ? "bg-vitrina-azul" : "border-2 border-vitrina-azul"
       } ${cargando ? "opacity-60" : ""}`}
     >
       {cargando ? (
         <ActivityIndicator color={primario ? "#FFFFFF" : "#1F4E6B"} />
       ) : (
-        <Text className={`text-base font-bold ${primario ? "text-white" : "text-vitrina-azul"}`}>
+        <Text className={`font-nunito-bold text-lg ${primario ? "text-white" : "text-vitrina-azul"}`}>
           {titulo}
         </Text>
       )}

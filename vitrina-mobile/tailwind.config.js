@@ -15,6 +15,12 @@ module.exports = {
           borde: "#C9D6DC",
         },
       },
+      fontFamily: {
+        lora: ["Lora_700Bold"],
+        nunito: ["NunitoSans_400Regular"],
+        "nunito-semibold": ["NunitoSans_600SemiBold"],
+        "nunito-bold": ["NunitoSans_700Bold"],
+      },
     },
   },
   plugins: [],

@@ -4,11 +4,12 @@ type Props = TextInputProps & { etiqueta: string };
 
 export function Campo({ etiqueta, ...props }: Props) {
   return (
-    <View className="mb-4">
-      <Text className="mb-1 text-base font-semibold text-vitrina-azul">{etiqueta}</Text>
+    <View className="gap-2">
+      <Text className="font-nunito-semibold text-base text-vitrina-azul">{etiqueta}</Text>
       <TextInput
-        className="rounded-xl border border-vitrina-borde bg-white px-4 py-3 text-base text-vitrina-tinta"
-        placeholderTextColor="#7A8C99"
+        accessibilityLabel={etiqueta}
+        className="h-12 rounded-xl border border-vitrina-borde bg-white px-4 font-nunito text-lg text-vitrina-tinta"
+        placeholderTextColor="#5A6B78"
         {...props}
       />
     </View>
