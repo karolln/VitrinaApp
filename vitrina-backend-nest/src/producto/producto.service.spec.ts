@@ -147,4 +147,28 @@ describe('ProductoService', () => {
       expect(prisma.producto.update).not.toHaveBeenCalled();
     });
   });
+
+  describe('Precio del producto', () => {
+    it('guarda el precio al crear', async () => {
+      prisma.negocio.findUnique.mockResolvedValue({ id: 1, usuarioId: DUENO });
+      prisma.producto.create.mockResolvedValue({ id: 10, precio: 2500 });
+
+      await service.crear(
+        { fotoUrl: 'http://img/arroz.jpg', negocioId: 1, precio: 2500 } as any,
+        DUENO,
+      );
+
+      expect(prisma.producto.create.mock.calls[0][0].data.precio).toBe(2500);
+    });
+
+    it('permite editar solo el precio', async () => {
+      prisma.producto.findUnique.mockResolvedValue({ id: 1, negocio: { usuarioId: DUENO } });
+      prisma.producto.update.mockResolvedValue({ id: 1, precio: 3000 });
+
+      const resultado = await service.actualizar(1, { precio: 3000 }, DUENO);
+
+      expect(resultado.precio).toBe(3000);
+      expect(prisma.producto.update.mock.calls[0][0].data.precio).toBe(3000);
+    });
+  });
 });

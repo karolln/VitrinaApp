@@ -57,6 +57,7 @@ export class ProductoService {
         categoria: dto.categoria || sugerencia.categoria,
         fotoUrl,
         cantidad: dto.cantidad ?? 1,
+        precio: dto.precio,
         estado: 'disponible',
         negocioId: dto.negocioId,
       },
@@ -75,6 +76,7 @@ export class ProductoService {
         categoria: dto.categoria || 'Sin categoría',
         fotoUrl: dto.fotoUrl,
         cantidad: dto.cantidad ?? 1,
+        precio: dto.precio,
         estado: 'disponible',
         negocioId: dto.negocioId,
       },
@@ -110,19 +112,20 @@ export class ProductoService {
   async actualizar(id: number, dto: ActualizarProductoDto, usuarioId: number) {
     await this.buscarProductoPropio(id, usuarioId);
 
-    const { nombre, categoria, fotoUrl, cantidad } = dto;
+    const { nombre, categoria, fotoUrl, cantidad, precio } = dto;
     if (
       nombre === undefined &&
       categoria === undefined &&
       fotoUrl === undefined &&
-      cantidad === undefined
+      cantidad === undefined &&
+      precio === undefined
     ) {
       throw new BadRequestException('Envía al menos un campo para editar');
     }
 
     return this.prisma.producto.update({
       where: { id },
-      data: { nombre, categoria, fotoUrl, cantidad },
+      data: { nombre, categoria, fotoUrl, cantidad, precio },
     });
   }
 }

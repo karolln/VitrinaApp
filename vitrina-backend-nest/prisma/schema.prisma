@@ -54,6 +54,7 @@ model Producto {
   categoria   String
   fotoUrl     String
   cantidad    Int             @default(1)
+  precio      Int?
   estado      EstadoProducto  @default(disponible)
   creadoEn    DateTime        @default(now())
 

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUrl, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class CrearProductoDto {
   @ApiPropertyOptional({ example: 'Arroz Diana 500g' })
@@ -21,6 +21,12 @@ export class CrearProductoDto {
   @IsInt()
   @Min(0)
   cantidad?: number;
+
+  @ApiPropertyOptional({ example: 2500, description: 'Precio en pesos colombianos, sin decimales' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  precio?: number;
 
   @ApiProperty({ example: 1, description: 'Id del negocio dueño del producto' })
   @IsInt()
