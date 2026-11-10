@@ -123,4 +123,31 @@ describe('AuthService', () => {
       'Teléfono o contraseña incorrectos',
     );
   });
+
+  // ---------- Perfil del tendero ----------
+
+  it('Perfil: debe devolver el usuario con su negocio y sin la contraseña', async () => {
+    const perfil = {
+      id: 1,
+      nombre: 'María Fernández',
+      telefono: '3001234567',
+      email: null,
+      onboardingCompletado: true,
+      negocio: { id: 7, nombre: 'Tienda Doña Rosa', barrio: 'La Esmeralda' },
+    };
+    prisma.usuario.findUnique.mockResolvedValue(perfil);
+
+    const resultado = await service.perfil(1);
+
+    expect(resultado).toEqual(perfil);
+    const consulta = prisma.usuario.findUnique.mock.calls[0][0];
+    expect(consulta.where).toEqual({ id: 1 });
+    expect(consulta.select.passwordHash).toBeUndefined();
+  });
+
+  it('Perfil: debe responder 404 si el usuario no existe', async () => {
+    prisma.usuario.findUnique.mockResolvedValue(null);
+
+    await expect(service.perfil(99)).rejects.toThrow('Usuario no encontrado');
+  });
 });
