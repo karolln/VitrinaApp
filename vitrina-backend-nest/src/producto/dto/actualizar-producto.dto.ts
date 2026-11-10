@@ -25,4 +25,10 @@ export class ActualizarProductoDto {
   @IsInt()
   @Min(0)
   cantidad?: number;
+
+  @ApiPropertyOptional({ example: 2500, description: 'Precio en pesos colombianos, sin decimales' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  precio?: number;
 }

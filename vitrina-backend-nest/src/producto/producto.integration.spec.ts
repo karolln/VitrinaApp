@@ -162,4 +162,14 @@ describe('Integración: PATCH /api/productos/:id (HU-06)', () => {
         const data = prisma.producto.update.mock.calls[0][0].data;
         expect(data).not.toHaveProperty('hack');
     });
+
+    it('400: precio negativo (falla la validación del DTO)', async () => {
+        await request(app.getHttpServer())
+            .patch('/api/productos/1')
+            .set('Authorization', token(DUENO))
+            .send({ precio: -100 })
+            .expect(400);
+
+        expect(prisma.producto.update).not.toHaveBeenCalled();
+    });
 });
