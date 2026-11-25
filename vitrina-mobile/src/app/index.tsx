@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { Aparece } from "../components/aparece";
 import { Boton } from "../components/boton";
@@ -24,7 +24,7 @@ function LetreroConTruco() {
 }
 
 export default function Index() {
-  const { token, cargando, cerrarSesion } = useAuth();
+  const { token, perfil, cargando, cerrarSesion } = useAuth();
 
   if (cargando) {
     return (
@@ -32,6 +32,10 @@ export default function Index() {
         <ActivityIndicator color="#1F4E6B" />
       </View>
     );
+  }
+
+  if (token && perfil && !perfil.negocio) {
+    return <Redirect href="/completar-perfil" />;
   }
 
   if (token) {
@@ -43,10 +47,10 @@ export default function Index() {
         <Aparece orden={1}>
           <View className="gap-2">
             <Text className="text-center font-lora text-[32px] leading-[38px] text-vitrina-azul">
-              {saludo()}
+              {saludo()}, {perfil?.nombre.split(" ")[0]}
             </Text>
             <Text className="text-center font-nunito text-lg leading-[27px] text-vitrina-tinta">
-              Aquí vas a ver y manejar los productos de tu tienda.
+              {perfil?.negocio?.nombre}: aquí vas a manejar tus productos.
             </Text>
           </View>
         </Aparece>
