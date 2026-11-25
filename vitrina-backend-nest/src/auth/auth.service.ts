@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async registrar(dto: RegistroDto) {
     const existente = await this.prisma.usuario.findUnique({
@@ -173,5 +173,25 @@ export class AuthService {
     });
 
     return { mensaje: 'Contraseña actualizada correctamente' };
+  }
+
+  async perfil(usuarioId: number) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      select: {
+        id: true,
+        nombre: true,
+        telefono: true,
+        email: true,
+        onboardingCompletado: true,
+        negocio: true,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return usuario;
   }
 }

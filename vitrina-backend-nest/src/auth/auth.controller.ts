@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegistroDto } from './dto/registro.dto';
@@ -13,7 +13,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 @ApiTags('Autenticación (HU-01, HU-02, HU-03, HU-04)')
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('registro')
   @ApiOperation({ summary: 'HU-01: Registro con número de celular' })
@@ -54,5 +54,13 @@ export class AuthController {
     @Body() dto: CompletarPerfilDto,
   ) {
     return this.authService.completarPerfil(usuario.id, dto);
+  }
+
+  @Get('perfil')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Ver mi perfil y mi negocio (requiere token)' })
+  perfil(@UsuarioActual() usuario: { id: number; telefono: string }) {
+    return this.authService.perfil(usuario.id);
   }
 }

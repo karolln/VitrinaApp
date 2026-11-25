@@ -1,16 +1,29 @@
 import {
-  Body, Controller, Get, Param, ParseIntPipe, Patch, Post,
-  UploadedFile, UseInterceptors, BadRequestException,
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductoService } from './producto.service';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { CrearProductoFotoDto } from './dto/crear-producto-foto.dto';
 import { GeminiVisionService } from '../integraciones/gemini-vision/gemini-vision.service';
 import { ActualizarProductoDto } from './dto/actualizar-producto.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UsuarioActual } from '../auth/guards/usuario-actual.decorator';
+
+type UsuarioToken = { id: number; telefono: string };
 
 @ApiTags('Catálogo (HU-05, HU-08, HU-09)')
 @Controller('api/productos')
@@ -21,13 +34,17 @@ export class ProductoController {
   ) { }
 
   @Post()
-  @ApiOperation({ summary: 'Agregar producto manualmente' })
-  crear(@Body() dto: CrearProductoDto) {
-    return this.productoService.crear(dto);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Agregar producto manualmente (solo el dueño del negocio)' })
+  crear(@UsuarioActual() usuario: UsuarioToken, @Body() dto: CrearProductoDto) {
+    return this.productoService.crear(dto, usuario.id);
   }
 
   @Post('con-foto')
-  @ApiOperation({ summary: 'HU-05: Agregar producto tomando una foto' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'HU-05: Agregar producto tomando una foto (solo el dueño del negocio)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -60,6 +77,7 @@ export class ProductoController {
     }),
   )
   async crearConFoto(
+    @UsuarioActual() usuario: UsuarioToken,
     @UploadedFile() foto: Express.Multer.File,
     @Body() dto: CrearProductoFotoDto,
   ) {
@@ -68,27 +86,32 @@ export class ProductoController {
     const sugerencia = await this.geminiVision.sugerirDesdeFoto(foto.path, foto.mimetype);
     const fotoUrl = `/uploads/productos/${foto.filename}`;
 
-    return this.productoService.crearConFoto(dto, fotoUrl, sugerencia);
+    return this.productoService.crearConFoto(dto, fotoUrl, sugerencia, usuario.id);
   }
 
   @Get('negocio/:negocioId')
-  @ApiOperation({ summary: 'HU-09: Ver listado de productos de un negocio' })
+  @ApiOperation({ summary: 'HU-09: Ver listado de productos de un negocio (público)' })
   listarPorNegocio(@Param('negocioId', ParseIntPipe) negocioId: number) {
     return this.productoService.listarPorNegocio(negocioId);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'HU-06: Editar producto' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'HU-06: Editar producto (solo el dueño)' })
   editar(
+    @UsuarioActual() usuario: UsuarioToken,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarProductoDto,
   ) {
-    return this.productoService.actualizar(id, dto);
+    return this.productoService.actualizar(id, dto, usuario.id);
   }
 
   @Patch(':id/estado')
-  @ApiOperation({ summary: 'HU-08: Alternar estado disponible/agotado' })
-  cambiarEstado(@Param('id', ParseIntPipe) id: number) {
-    return this.productoService.cambiarEstado(id);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'HU-08: Alternar estado disponible/agotado (solo el dueño)' })
+  cambiarEstado(@UsuarioActual() usuario: UsuarioToken, @Param('id', ParseIntPipe) id: number) {
+    return this.productoService.cambiarEstado(id, usuario.id);
   }
 }
