@@ -55,7 +55,10 @@ export default function Index() {
           </View>
         </Aparece>
         <Aparece orden={2}>
-          <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          <View className="gap-4">
+            <Boton titulo="Ver estadísticas" onPress={() => router.push("/estadisticas")} />
+            <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          </View>
         </Aparece>
       </ScrollView>
     );
