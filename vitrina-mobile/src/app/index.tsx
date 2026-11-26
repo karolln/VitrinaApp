@@ -55,7 +55,10 @@ export default function Index() {
           </View>
         </Aparece>
         <Aparece orden={2}>
-          <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          <View className="gap-4">
+            <Boton titulo="Activar avisos" onPress={() => router.push("/avisos")} />
+            <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          </View>
         </Aparece>
       </ScrollView>
     );
@@ -82,6 +85,11 @@ export default function Index() {
       <Aparece orden={3}>
         <View className="gap-4">
           <Boton titulo="Ver tiendas cerca" onPress={() => router.push("/mapa")} />
+          <Boton
+            titulo="Activar avisos"
+            variante="secundario"
+            onPress={() => router.push("/avisos")}
+          />
           <View className="flex-row flex-wrap items-center justify-center">
             <Text className="font-nunito text-base text-vitrina-tinta">¿Tienes una tienda? </Text>
             <Pressable onPress={() => router.push("/login")} accessibilityRole="link" hitSlop={12}>
