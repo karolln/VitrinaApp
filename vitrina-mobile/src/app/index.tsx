@@ -57,6 +57,7 @@ export default function Index() {
         <Aparece orden={2}>
           <View className="gap-4">
             <Boton titulo="Activar avisos" onPress={() => router.push("/avisos")} />
+            <Boton titulo="Ver estadísticas" variante="secundario" onPress={() => router.push("/estadisticas")} />
             <Boton titulo="Actualizar mi tienda" variante="secundario" onPress={() => router.push("/completar-perfil")} />
             <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
           </View>
