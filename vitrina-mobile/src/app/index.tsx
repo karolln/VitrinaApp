@@ -1,4 +1,4 @@
-import { Redirect, router } from "expo-router";
+import { Href, Redirect, router } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { Aparece } from "../components/aparece";
 import { Boton } from "../components/boton";
@@ -7,6 +7,7 @@ import { Letrero } from "../components/letrero";
 import { useAuth } from "../context/auth";
 import { almacen } from "../lib/almacen";
 import { CONTENEDOR } from "../lib/disenio";
+
 
 function saludo() {
   const hora = new Date().getHours();
@@ -55,7 +56,13 @@ export default function Index() {
           </View>
         </Aparece>
         <Aparece orden={2}>
-          <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          <View className="gap-4">
+            <Boton titulo="Ver mi vitrina" onPress={() => router.push("/mi-vitrina")} />
+            <Boton titulo="Activar avisos" variante="secundario" onPress={() => router.push("/avisos")} />
+            <Boton titulo="Ver estadísticas" variante="secundario" onPress={() => router.push("/estadisticas")} />
+            <Boton titulo="Actualizar mi tienda" variante="secundario" onPress={() => router.push("/completar-perfil")} />
+            <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
+          </View>
         </Aparece>
       </ScrollView>
     );
@@ -82,6 +89,11 @@ export default function Index() {
       <Aparece orden={3}>
         <View className="gap-4">
           <Boton titulo="Ver tiendas cerca" onPress={() => router.push("/mapa")} />
+          <Boton
+            titulo="Activar avisos"
+            variante="secundario"
+            onPress={() => router.push("/avisos")}
+          />
           <View className="flex-row flex-wrap items-center justify-center">
             <Text className="font-nunito text-base text-vitrina-tinta">¿Tienes una tienda? </Text>
             <Pressable onPress={() => router.push("/login")} accessibilityRole="link" hitSlop={12}>
