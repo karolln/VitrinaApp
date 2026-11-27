@@ -56,7 +56,9 @@ export default function Index() {
         </Aparece>
         <Aparece orden={2}>
           <View className="gap-4">
-            <Boton titulo="Ver estadísticas" onPress={() => router.push("/estadisticas")} />
+            <Boton titulo="Activar avisos" onPress={() => router.push("/avisos")} />
+            <Boton titulo="Ver estadísticas" variante="secundario" onPress={() => router.push("/estadisticas")} />
+            <Boton titulo="Actualizar mi tienda" variante="secundario" onPress={() => router.push("/completar-perfil")} />
             <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
           </View>
         </Aparece>
@@ -85,6 +87,11 @@ export default function Index() {
       <Aparece orden={3}>
         <View className="gap-4">
           <Boton titulo="Ver tiendas cerca" onPress={() => router.push("/mapa")} />
+          <Boton
+            titulo="Activar avisos"
+            variante="secundario"
+            onPress={() => router.push("/avisos")}
+          />
           <View className="flex-row flex-wrap items-center justify-center">
             <Text className="font-nunito text-base text-vitrina-tinta">¿Tienes una tienda? </Text>
             <Pressable onPress={() => router.push("/login")} accessibilityRole="link" hitSlop={12}>
