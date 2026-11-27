@@ -13,11 +13,16 @@ import { CONTENEDOR } from "../lib/disenio";
 type Ubicacion = { latitud: number; longitud: number };
 
 export default function CompletarPerfil() {
-    const { token, recargarPerfil } = useAuth();
-    const [nombreNegocio, setNombreNegocio] = useState("");
-    const [barrio, setBarrio] = useState("");
-    const [descripcion, setDescripcion] = useState("");
-    const [ubicacion, setUbicacion] = useState<Ubicacion | null>(null);
+    const { token, perfil, recargarPerfil } = useAuth();
+    const negocio = perfil?.negocio;
+    const [nombreNegocio, setNombreNegocio] = useState(negocio?.nombre ?? "");
+    const [barrio, setBarrio] = useState(negocio?.barrio ?? "");
+    const [descripcion, setDescripcion] = useState(negocio?.descripcion ?? "");
+    const [ubicacion, setUbicacion] = useState<Ubicacion | null>(
+        negocio?.latitud != null && negocio?.longitud != null
+            ? { latitud: negocio.latitud, longitud: negocio.longitud }
+            : null,
+    );
     const [buscando, setBuscando] = useState(false);
     const [avisoUbicacion, setAvisoUbicacion] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
