@@ -1,4 +1,4 @@
-import { Redirect, router } from "expo-router";
+import { Href, Redirect, router } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { Aparece } from "../components/aparece";
 import { Boton } from "../components/boton";
@@ -7,6 +7,7 @@ import { Letrero } from "../components/letrero";
 import { useAuth } from "../context/auth";
 import { almacen } from "../lib/almacen";
 import { CONTENEDOR } from "../lib/disenio";
+
 
 function saludo() {
   const hora = new Date().getHours();
@@ -56,7 +57,8 @@ export default function Index() {
         </Aparece>
         <Aparece orden={2}>
           <View className="gap-4">
-            <Boton titulo="Activar avisos" onPress={() => router.push("/avisos")} />
+          <Boton titulo="Ver mi vitrina" onPress={() => router.push("/mi-vitrina" as Href)} />
+          <Boton titulo="Activar avisos" variante="secundario" onPress={() => router.push("/avisos")} />
             <Boton titulo="Ver estadísticas" variante="secundario" onPress={() => router.push("/estadisticas")} />
             <Boton titulo="Actualizar mi tienda" variante="secundario" onPress={() => router.push("/completar-perfil")} />
             <Boton titulo="Cerrar sesión" variante="secundario" onPress={cerrarSesion} />
