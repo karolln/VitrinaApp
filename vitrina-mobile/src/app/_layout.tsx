@@ -45,17 +45,17 @@ export default function RootLayout() {
 
   if (!fuentesListas || yaLaVio === null) return null;
 
-  return (
-    <AuthProvider>
-      <NotificacionesProvider> {/* ← NUEVO */}
-        <View style={{ flex: 1, backgroundColor: "#E3ECEC" }}>
-          {mostrarEntrada ? (
-            <Entrada corta={yaLaVio} onTerminar={terminarEntrada} />
-          ) : (
-            <Stack screenOptions={{ headerShown: false }} />
-          )}
-        </View>
-      </NotificacionesProvider>
-    </AuthProvider>
-  );
+return (
+  <AuthProvider>
+    <NotificacionesProvider>
+      <View style={{ flex: 1, backgroundColor: "#E3ECEC" }}>
+        {mostrarEntrada ? (
+          <Entrada corta={yaLaVio} onTerminar={terminarEntrada} />
+        ) : (
+          <Stack screenOptions={{ headerShown: false }} />
+        )}
+      </View>
+    </NotificacionesProvider>
+  </AuthProvider>
+);
 }
