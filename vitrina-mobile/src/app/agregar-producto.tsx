@@ -57,7 +57,7 @@ export default function AgregarProducto() {
       });
       if (!r.ok) {
         const e = await r.json().catch(() => null);
-        throw new Error(e?.mensaje ?? "No pudimos guardar el producto.");
+        throw new Error(e?.message ?? "No pudimos guardar el producto.");
       }
       router.back();
     } catch (e) {
