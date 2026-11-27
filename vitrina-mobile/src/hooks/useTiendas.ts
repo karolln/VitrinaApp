@@ -4,7 +4,7 @@ import { apiFetch } from "../lib/api";
 
 export type Tienda = Negocio;
 
-export function useTiendas(barrio: string) {
+export function useTiendas(barrio?: string) {
     const [tiendas, setTiendas] = useState<Tienda[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -14,7 +14,9 @@ export function useTiendas(barrio: string) {
         setError(null);
         try {
             const datos = await apiFetch<Tienda[]>(
-                `/api/negocios/buscar?barrio=${encodeURIComponent(barrio)}`,
+                barrio
+                    ? `/api/negocios/buscar?barrio=${encodeURIComponent(barrio)}`
+                    : "/api/negocios/buscar",
             );
             setTiendas(datos);
         } catch (e) {

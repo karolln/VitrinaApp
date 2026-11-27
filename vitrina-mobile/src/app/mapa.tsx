@@ -4,13 +4,25 @@ import { Boton } from "../components/boton";
 import { MapaTiendas } from "../components/mapa-tiendas";
 import { useTiendas } from "../hooks/useTiendas";
 import { useUbicacion } from "../hooks/useUbicacion";
+import { metrosEntre } from "../lib/distancia";
 
-const BARRIO = "Bello Horizonte";
 const COLUMNA = "mx-auto w-full max-w-[430px] px-5";
 
 export default function Mapa() {
-  const { tiendas, cargando, error, recargar } = useTiendas(BARRIO);
+  const { tiendas, cargando, error, recargar } = useTiendas();
   const { ubicacion, buscando, aviso, pedirUbicacion } = useUbicacion();
+
+  // Con tu ubicación, las tiendas ubicadas se ordenan de la más cercana a la más lejana.
+  const ordenadas = ubicacion
+    ? [...tiendas].sort((a, b) => {
+      if (a.latitud === null || a.longitud === null) return 1;
+      if (b.latitud === null || b.longitud === null) return -1;
+      return (
+        metrosEntre(ubicacion, { latitud: a.latitud, longitud: a.longitud }) -
+        metrosEntre(ubicacion, { latitud: b.latitud, longitud: b.longitud })
+      );
+    })
+    : tiendas;
 
   return (
     <View className="flex-1 bg-vitrina-fondo">
@@ -24,12 +36,14 @@ export default function Mapa() {
           <Text className="font-nunito-bold text-base text-vitrina-azul">← Volver</Text>
         </Pressable>
         <Text className="font-lora text-[32px] leading-[38px] text-vitrina-azul">
-          Tiendas de {BARRIO}
+          Tiendas cerca de ti
         </Text>
         <Text className="font-nunito text-lg leading-[27px] text-vitrina-tinta">
           {cargando
             ? "Buscando tiendas…"
-            : `${tiendas.length} ${tiendas.length === 1 ? "tienda" : "tiendas"} en tu barrio.`}
+            : ubicacion
+              ? `${tiendas.length} ${tiendas.length === 1 ? "tienda" : "tiendas"}, de la más cercana a la más lejana.`
+              : `${tiendas.length} ${tiendas.length === 1 ? "tienda" : "tiendas"} en VitrinaApp.`}
         </Text>
       </View>
 
@@ -45,7 +59,7 @@ export default function Mapa() {
               <Boton titulo="Intentar de nuevo" variante="secundario" onPress={recargar} />
             </View>
           ) : (
-            <MapaTiendas tiendas={tiendas} centro={ubicacion} />
+            <MapaTiendas tiendas={ordenadas} centro={ubicacion} />
           )}
         </View>
       </View>
