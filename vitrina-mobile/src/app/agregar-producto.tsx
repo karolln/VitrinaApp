@@ -7,6 +7,8 @@ import { Boton } from "../components/boton";
 import { Campo } from "../components/campo";
 import { useAuth } from "../context/auth";
 import { CONTENEDOR } from "../lib/disenio";
+import { File } from "expo-file-system";
+
 
 
 const API = "https://vitrina-dev.apolobyte.online";
@@ -41,7 +43,7 @@ export default function AgregarProducto() {
       const blob = await (await fetch(foto)).blob();
       form.append("foto", blob, "foto.jpg");
       } else {
-      form.append("foto", { uri: foto, name: "foto.jpg", type: "image/jpeg" } as any);
+      form.append("foto", new File(foto));
 }
         
       form.append("negocioId", String(perfil?.negocio?.id));
