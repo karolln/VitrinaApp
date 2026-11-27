@@ -10,7 +10,9 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Entrada } from "../components/entrada";
 import { AuthProvider } from "../context/auth";
+import { NotificacionesProvider } from "../context/NotificacionesContext"; // ← NUEVO
 import { almacen } from "../lib/almacen";
+import { configurarNotificaciones } from "../lib/notificaciones"; // ← NUEVO
 
 const CLAVE_ENTRADA = "vitrina_entrada_vista";
 
@@ -23,6 +25,11 @@ export default function RootLayout() {
   });
   const [yaLaVio, setYaLaVio] = useState<boolean | null>(null);
   const [mostrarEntrada, setMostrarEntrada] = useState(true);
+
+  // NUEVO: configura cómo se muestran las notificaciones
+  useEffect(() => {
+    configurarNotificaciones();
+  }, []);
 
   useEffect(() => {
     almacen
@@ -40,13 +47,15 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <View style={{ flex: 1, backgroundColor: "#E3ECEC" }}>
-        {mostrarEntrada ? (
-          <Entrada corta={yaLaVio} onTerminar={terminarEntrada} />
-        ) : (
-          <Stack screenOptions={{ headerShown: false }} />
-        )}
-      </View>
+      <NotificacionesProvider> {/* ← NUEVO */}
+        <View style={{ flex: 1, backgroundColor: "#E3ECEC" }}>
+          {mostrarEntrada ? (
+            <Entrada corta={yaLaVio} onTerminar={terminarEntrada} />
+          ) : (
+            <Stack screenOptions={{ headerShown: false }} />
+          )}
+        </View>
+      </NotificacionesProvider>
     </AuthProvider>
   );
 }
