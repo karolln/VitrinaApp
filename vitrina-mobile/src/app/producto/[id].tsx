@@ -8,6 +8,7 @@ import { Campo } from "../../components/campo";
 import { useAuth } from "../../context/auth";
 import { apiFetch } from "../../lib/api";
 import { CONTENEDOR } from "../../lib/disenio";
+import { File } from "expo-file-system";
 
 const API = "https://vitrina-dev.apolobyte.online";
 
@@ -72,7 +73,7 @@ export default function EditarProducto() {
       const blob = await (await fetch(uri)).blob();
       form.append("foto", blob, "foto.jpg");
     } else {
-      form.append("foto", { uri, name: "foto.jpg", type: "image/jpeg" } as any);
+      form.append("foto", new File(uri));
     }
     form.append("negocioId", String(perfil?.negocio?.id));
 
